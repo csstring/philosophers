@@ -6,7 +6,7 @@
 /*   By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/21 17:20:13 by schoe             #+#    #+#             */
-/*   Updated: 2022/06/24 21:41:55 by schoe            ###   ########.fr       */
+/*   Updated: 2022/06/25 20:45:54 by schoe            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "philo.h"
@@ -24,23 +24,6 @@ int	ft_destroy_tool(t_proc *proc)
 	sem_close(proc->print);
 	return (1);
 }
-/*
-int	ft_join_thread(t_proc *proc)
-{
-	int	i;
-	int	k;
-
-	i = 0;
-	k = 0;
-	i= 0;
-	while (i < proc->number)
-	{
-		if (pthread_join(proc->tid[i], NULL) != 0)
-			return (0);
-		i++;
-	}
-	return (1);
-}*/
 
 int	ft_digit_check(char **av)
 {
@@ -74,10 +57,12 @@ int	main(int ac, char **av)
 		return (0);
 	}
 	if (ft_digit_check(av) && \
-			ft_proc_init(&proc, av, ac) && \
-			ft_make_philo(&proc, av) && \
-			ft_view_philo(&proc) && \
+			ft_proc_init(&proc, av) && \
+			ft_make_philo(&proc, av, ac) && \
 			ft_destroy_tool(&proc))
+		while (1)
+		{
+		}
 		return (0);
 	printf("error\n");
 	return (0);

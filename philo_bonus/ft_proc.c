@@ -6,114 +6,104 @@
 /*   By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 13:21:29 by schoe             #+#    #+#             */
-/*   Updated: 2022/06/24 21:57:38 by schoe            ###   ########.fr       */
+/*   Updated: 2022/06/25 20:54:24 by schoe            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "philo.h"
-int	ft_max_count_check(t_proc *proc)
+int	ft_max_count_check(t_philo *philo)
 {
-	int	i;
 	ssize_t time;
 
-	i = 0;
-	while (i < proc->number)
-	{
-		if (proc->philo[i].eat_count < proc->max_count)
-			return (0);
-		i++;
-	}
-	sem_wait(proc->print);
-	ft_die_check(proc);
+	if (philo->eat_count < philo->max_count)
+		return (0);
+	sem_wait(philo->print);
+	philo->die_check = 1;
 	time = ft_get_usec();
-	printf("%ld all philo eat %d times\n", time - proc->philo[0].make, \
-			proc->max_count);
-	sem_post(proc->print);
+	printf("%ld all philo eat %d times\n", time - philo->make, \
+			philo->max_count);
+	//sem_post(proc->print);
 	return (1);
 }
 
-int	ft_hungry_check(int	i, t_proc *proc)
+int	ft_hungry_check(t_philo *philo)
 {	
 	ssize_t time;
 
 	time = ft_get_usec();
-	if (proc->philo[i].end_eat == 0 && time - proc->philo[i].make > \
-			(ssize_t)proc->die)
+	if (philo->end_eat == 0 && time - philo->make > (ssize_t)philo->die)
 	{
-		sem_wait(proc->print);
-		ft_die_check(proc);
+		sem_wait(philo->print);
+		philo->die_check = 1;
 		time = ft_get_usec();
-		printf("%ld %d died\n", time - proc->philo[i].make, proc->philo[i].name);
-		sem_post(proc->print);
+		printf("%ld %d died\n", time - philo->make, philo->name);
+		//sem_post(proc->print);
 		return (1);
 	}
-	else if (proc->philo[i].end_eat != 0 && time - proc->philo[i].end_eat > \
-			(ssize_t)proc->die)
+	else if (philo->end_eat != 0 && time - philo->end_eat > (ssize_t)philo->die)
 	{
-		sem_wait(proc->print);
-		ft_die_check(proc);
+		sem_wait(philo->print);
+		philo->die_check = 1;
 		time = ft_get_usec();
-		printf("%ld %d died\n", time - proc->philo[i].make, proc->philo[i].name);
-		sem_post(proc->print);
+		printf("%ld %d died\n", time - philo->make, philo->name);
+		//sem_post(proc->print);
 		return (1);
 	}
 	return (0);
 }
 
-int	ft_view_philo(t_proc *proc)
+void	*ft_view_philo(void *input)
 {
 	int	i;
+	t_philo *philo;
 
+	philo = (t_philo *)input;
 	i = 0;
 	while (1)
 	{
-		while (i < proc->number)
+		if (ft_hungry_check(philo))
+			break ;
+		if (philo->max_count)
 		{
-			if (ft_hungry_check(i, proc))
-				return (1);
-			i++;
+			if (ft_max_count_check(philo))
+				break;
 		}
-		if (proc->max_count)
-		{
-			if (ft_max_count_check(proc))
-				return (1);
-		}
-		i = 0;
 	}
-	return (1);
+	kill(philo->pid, 3);
+	return (0);
 }
 
-int	ft_proc_init(t_proc *proc, char **av, int ac)
+int	ft_proc_init(t_proc *proc, char **av)
 {
 	int	i;
 
 	i = 0;
 	proc->number = ft_atoi(av[1]);
-	proc->die = ft_atoi(av[2]);
-	if (ac == 6)
-		proc->max_count = ft_atoi(av[5]);
-	else
-		proc->max_count = 0;
-	proc->fork = (sem_t *)malloc(sizeof(sem_t) * 1);
-	proc->print = (sem_t *)malloc(sizeof(sem_t) * 1);
-//	proc->tid = (pthread_t *)malloc(sizeof(pthread_t) * proc->number);
+//	proc->fork = (sem_t *)malloc(sizeof(sem_t) * 1);
+//	proc->print = (sem_t *)malloc(sizeof(sem_t) * 1);
+	proc->pid = (pid_t *)malloc(sizeof(pid_t) * proc->number);
 	proc->philo = (t_philo *)malloc(sizeof(t_philo) * proc->number);
 	if (proc->fork == NULL || proc->print == NULL || proc->philo == NULL)
 		return (0);
-	proc->fork = sem_open("fork", O_CREAT | O_EXCL, 0644, proc->number); 
-	proc->print = sem_open("print", O_CREAT | O_EXCL, 0644, 1); 
+	sem_unlink("/fork");
+	sem_unlink("/print");
+	proc->fork = sem_open("/fork", O_CREAT | O_EXCL, 0644, proc->number); 
+	proc->print = sem_open("/print", O_CREAT | O_EXCL, 0644, 1); 
 	return (1);
 }
 
-int	ft_make_philo(t_proc *proc, char **av)
+int	ft_make_philo(t_proc *proc, char **av, int ac)
 {
 	int	i;
-//	ssize_t time;
 	pid_t	pid;
 
 	i = 0;
 	while (i < proc->number)
 	{
+		if (ac == 6)
+			proc->philo[i].max_count = ft_atoi(av[5]);
+		else
+			proc->philo[i].max_count = 0;
+		proc->philo[i].die = ft_atoi(av[2]);
 		proc->philo[i].name = i + 1;
 		proc->philo[i].eat_count = 0;
 		proc->philo[i].make = 0;
@@ -130,14 +120,19 @@ int	ft_make_philo(t_proc *proc, char **av)
 		pid = fork();
 		if (pid == 0)
 		{
-			proc->philo[i].make = ft_get_usec();
 			ft_philo_simul((void *)&proc->philo[i]);
+			break;
 		}
+		kill(pid, 17);
+		proc->philo[(i + 1) % proc->number].pid = pid;
+		proc->pid[(i + 1) % proc->number] = pid;
 		i++;
 	}
-	/*time = ft_get_usec();
+	if (pid != 0)
+		kill(0, 19);
+	waitpid(0, &i ,0);
 	i = 0;
 	while (i < proc->number)
-		proc->philo[i++].make = time;*/
+		kill(proc->pid[i++], 9);
 	return (1);
 }
