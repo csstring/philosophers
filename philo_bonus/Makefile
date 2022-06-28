@@ -6,32 +6,30 @@
 #    By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/20 17:04:36 by schoe             #+#    #+#              #
-#    Updated: 2022/06/24 19:35:25 by schoe            ###   ########.fr        #
+#    Updated: 2022/06/26 14:30:06 by schoe            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -O3
-SRCS = main.c ft_utils.c ft_philo_simul.c ft_proc.c
+CFLAGS = -Wall -Wextra -Werror -O3 
+SRCS = main_bonus.c ft_utils_bonus.c ft_philo_simul_bonus.c ft_monitor_bonus.c
 OBJS = ${SRCS:.c=.o}
 RM = rm -f
 INCLUDE = -I./includes
-NAME = philo
+NAME = philo_bonus
 
 all : $(NAME)
 
 $(NAME) : ${OBJS}
-		${CC} ${CFLAGS} ${OBJS} -o philo
+		${CC} ${CFLAGS} ${OBJS} -o philo_bonus
 
 %.o : %.c
 		${CC} ${CFLAGS} -c $< -o ${<:.c=.o} ${INCLUDE}
 
 clean :
-		${MAKE} -C ./libft clean
 		${RM} ${OBJS}
 
 fclean : clean
-		${MAKE} -C ./libft fclean
 		${RM} $(NAME)
 re : 
 	${MAKE} fclean 

@@ -6,15 +6,17 @@
 /*   By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 13:21:29 by schoe             #+#    #+#             */
-/*   Updated: 2022/06/24 20:25:30 by schoe            ###   ########.fr       */
+/*   Updated: 2022/06/26 16:31:05 by schoe            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <stdlib.h>
+
 int	ft_max_count_check(t_proc *proc)
 {
-	int	i;
-	ssize_t time;
+	int		i;
+	ssize_t	time;
 
 	i = 0;
 	while (i < proc->number)
@@ -32,9 +34,9 @@ int	ft_max_count_check(t_proc *proc)
 	return (1);
 }
 
-int	ft_hungry_check(int	i, t_proc *proc)
+int	ft_hungry_check(int i, t_proc *proc)
 {	
-	ssize_t time;
+	ssize_t	time;
 
 	time = ft_get_usec();
 	if (proc->philo[i].end_eat == 0 && time - proc->philo[i].make > \
@@ -44,7 +46,7 @@ int	ft_hungry_check(int	i, t_proc *proc)
 		ft_die_check(proc);
 		time = ft_get_usec();
 		printf("%ld %d died\n", time - proc->philo[i].make, proc->philo[i].name);
-		pthread_mutex_unlock(proc->print);
+		ft_put_mutex((&proc->philo[i]));
 		return (1);
 	}
 	else if (proc->philo[i].end_eat != 0 && time - proc->philo[i].end_eat > \
@@ -54,7 +56,7 @@ int	ft_hungry_check(int	i, t_proc *proc)
 		ft_die_check(proc);
 		time = ft_get_usec();
 		printf("%ld %d died\n", time - proc->philo[i].make, proc->philo[i].name);
-		pthread_mutex_unlock(proc->print);
+		ft_put_mutex((&proc->philo[i]));
 		return (1);
 	}
 	return (0);
@@ -94,7 +96,8 @@ int	ft_proc_init(t_proc *proc, char **av, int ac)
 		proc->max_count = ft_atoi(av[5]);
 	else
 		proc->max_count = 0;
-	proc->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * proc->number);
+	proc->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) \
+			* proc->number);
 	proc->print = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * 1);
 	proc->tid = (pthread_t *)malloc(sizeof(pthread_t) * proc->number);
 	proc->philo = (t_philo *)malloc(sizeof(t_philo) * proc->number);
@@ -113,8 +116,7 @@ int	ft_proc_init(t_proc *proc, char **av, int ac)
 
 int	ft_make_philo(t_proc *proc, char **av)
 {
-	int	i;
-	ssize_t time;
+	int		i;
 
 	i = 0;
 	while (i < proc->number)
@@ -128,15 +130,6 @@ int	ft_make_philo(t_proc *proc, char **av)
 		proc->philo[i].left = &(proc->fork[i]);
 		proc->philo[i].right = &(proc->fork[(i + 1) % (proc->number)]);
 		proc->philo[i++].print = proc->print;
-	}
-	i = 0;
-	time = ft_get_usec();
-	while (i < proc->number)
-	{
-		if (pthread_create(&(proc->tid[i]), NULL, ft_philo_simul, \
-					(void *)&proc->philo[i]) != 0)
-			return (0);
-		proc->philo[i++].make = time;
 	}
 	return (1);
 }

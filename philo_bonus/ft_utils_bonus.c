@@ -1,16 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_utils.c                                         :+:      :+:    :+:   */
+/*   ft_utils_bonus.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 13:12:52 by schoe             #+#    #+#             */
-/*   Updated: 2022/06/25 20:41:34 by schoe            ###   ########.fr       */
+/*   Updated: 2022/06/26 14:51:20 by schoe            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
+#include <sys/time.h>
+#include <unistd.h>
 
 int	ft_atoi(const char *str)
 {
@@ -39,18 +41,6 @@ int	ft_atoi(const char *str)
 	return (minus * (int)sum);
 }
 
-void	ft_die_check(t_proc *proc)
-{
-	int	i;
-
-	i = 0;
-	while (i < proc->number)
-	{
-		proc->philo[i].die_check = 1;
-		i++;
-	}
-}
-
 void	ft_msleep(int m_sec)
 {
 	struct timeval	st;
@@ -62,9 +52,14 @@ void	ft_msleep(int m_sec)
 		gettimeofday(&et, NULL);
 		if ((et.tv_sec - st.tv_sec) * 1000000 + \
 				(et.tv_usec - st.tv_usec) >= m_sec * 1000)
-			break;
-		usleep(10);
+			break ;
+		usleep(100);
 	}
+}
+
+int	ft_isdigit(int c)
+{
+	return (c >= '0' && c <= '9');
 }
 
 ssize_t	ft_get_usec(void)

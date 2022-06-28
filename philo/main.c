@@ -6,22 +6,18 @@
 /*   By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/21 17:20:13 by schoe             #+#    #+#             */
-/*   Updated: 2022/06/24 20:25:23 by schoe            ###   ########.fr       */
+/*   Updated: 2022/06/26 16:35:32 by schoe            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "philo.h"
-
-int	ft_isdigit(int c)
-{
-	return (c >= '0' && c <= '9');
-}
+#include <string.h>
 
 int	ft_destroy_tool(t_proc *proc)
 {
 	int	i;
 
 	i = 0;
-	if (pthread_mutex_destroy(proc->print) != 0 )
+	if (pthread_mutex_destroy(proc->print) != 0)
 		return (0);
 	while (i < proc->number)
 	{
@@ -35,11 +31,8 @@ int	ft_destroy_tool(t_proc *proc)
 int	ft_join_thread(t_proc *proc)
 {
 	int	i;
-	int	k;
 
 	i = 0;
-	k = 0;
-	i= 0;
 	while (i < proc->number)
 	{
 		if (pthread_join(proc->tid[i], NULL) != 0)
@@ -71,6 +64,23 @@ int	ft_digit_check(char **av)
 	return (1);
 }
 
+int	ft_start_simul(t_proc *proc)
+{
+	int		i;
+	ssize_t	time;
+
+	i = 0;
+	time = ft_get_usec();
+	while (i < proc->number)
+	{
+		if (pthread_create(&(proc->tid[i]), NULL, ft_philo_simul, \
+					(void *)&proc->philo[i]) != 0)
+			return (0);
+		proc->philo[i++].make = time;
+	}
+	return (1);
+}
+
 int	main(int ac, char **av)
 {
 	t_proc	proc;
@@ -80,9 +90,11 @@ int	main(int ac, char **av)
 		printf("error\n");
 		return (0);
 	}
+	memset(&proc, 0, sizeof(proc));
 	if (ft_digit_check(av) && \
 			ft_proc_init(&proc, av, ac) && \
 			ft_make_philo(&proc, av) && \
+			ft_start_simul(&proc) && \
 			ft_view_philo(&proc) && \
 			ft_join_thread(&proc) && \
 			ft_destroy_tool(&proc))

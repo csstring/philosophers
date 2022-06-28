@@ -6,7 +6,7 @@
 #    By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/20 17:04:36 by schoe             #+#    #+#              #
-#    Updated: 2022/06/24 19:35:25 by schoe            ###   ########.fr        #
+#    Updated: 2022/06/26 15:57:02 by schoe            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,11 +27,9 @@ $(NAME) : ${OBJS}
 		${CC} ${CFLAGS} -c $< -o ${<:.c=.o} ${INCLUDE}
 
 clean :
-		${MAKE} -C ./libft clean
 		${RM} ${OBJS}
 
 fclean : clean
-		${MAKE} -C ./libft fclean
 		${RM} $(NAME)
 re : 
 	${MAKE} fclean 

@@ -6,11 +6,13 @@
 /*   By: schoe <schoe@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 13:12:52 by schoe             #+#    #+#             */
-/*   Updated: 2022/06/24 20:25:08 by schoe            ###   ########.fr       */
+/*   Updated: 2022/06/26 16:02:39 by schoe            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <sys/time.h>
+#include <unistd.h>
 
 int	ft_atoi(const char *str)
 {
@@ -62,9 +64,14 @@ void	ft_msleep(int m_sec)
 		gettimeofday(&et, NULL);
 		if ((et.tv_sec - st.tv_sec) * 1000000 + \
 				(et.tv_usec - st.tv_usec) >= m_sec * 1000)
-			break;
+			break ;
 		usleep(127);
 	}
+}
+
+int	ft_isdigit(int c)
+{
+	return (c >= '0' && c <= '9');
 }
 
 ssize_t	ft_get_usec(void)
